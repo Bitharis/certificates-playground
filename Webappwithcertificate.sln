@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertificateService", "Certi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestDriver", "TestDriver\TestDriver.csproj", "{191CB62A-7891-44AC-B301-B9DA69099467}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication-X", "WebApplication-X\WebApplication-X.csproj", "{59D4F87D-CEE6-4373-B8A9-8BCCB9CF0088}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{191CB62A-7891-44AC-B301-B9DA69099467}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{191CB62A-7891-44AC-B301-B9DA69099467}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{191CB62A-7891-44AC-B301-B9DA69099467}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59D4F87D-CEE6-4373-B8A9-8BCCB9CF0088}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59D4F87D-CEE6-4373-B8A9-8BCCB9CF0088}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59D4F87D-CEE6-4373-B8A9-8BCCB9CF0088}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59D4F87D-CEE6-4373-B8A9-8BCCB9CF0088}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

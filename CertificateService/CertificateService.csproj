@@ -42,7 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthorityKeyIdentifierExtension.cs" />
-    <Compile Include="CARootService.cs" />
+    <Compile Include="Private\CertificateAuthorityService.cs" />
+    <Compile Include="ICertificateAuthorityService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

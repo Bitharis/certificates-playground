@@ -1,64 +1,51 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CertificateService;
-using System.Security.Cryptography;
+using CertificateService.Private;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
-Console.WriteLine("Create a Root CA");
+using IHost host = 
+    Host.CreateDefaultBuilder(args)
+    .ConfigureServices((_, services) => services.AddSingleton<ICertificateAuthorityService, CertificateAuthorityService>())
+    .Build();
 
-var caService = new CARootService();
+Run(host.Services);
 
-string passphrase = "some-random-passphrase-for-protection";
+await host.StartAsync();
 
-var rootCA = caService.GenerateCAroot();
-
-var certificateBytes = caService.ConvertCARootToByteArray(rootCA, passphrase);
-
-var result = caService.GetCARootFromByteArray(certificateBytes,passphrase);
-
-//Console.WriteLine(result);
-
-foreach (X509Extension extension in result.Extensions)
+void Run(IServiceProvider services)
 {
-    Console.WriteLine(extension.Oid.FriendlyName + "(" + extension.Oid.Value + ")");
+    ICertificateAuthorityService caService = ResolveCaService(services);
 
-    if (extension.Oid.FriendlyName == "Key Usage")
-    {
-        X509KeyUsageExtension ext = (X509KeyUsageExtension)extension;
-        Console.WriteLine(ext.KeyUsages);
-    }
+    string passphrase = "some-random-passphrase-for-protection";
+    int RootCAkeySizeInBits = 4096;
+    int CertKeyBitSize = 2048;
+    string CaSubjectName = @"CN=Experimental Issuing Authority";
+    string DestinationFolder = @"C:\Certs\";
 
-    if (extension.Oid.FriendlyName == "Basic Constraints")
-    {
-        X509BasicConstraintsExtension ext = (X509BasicConstraintsExtension)extension;
-        Console.WriteLine(ext.CertificateAuthority);
-        Console.WriteLine(ext.HasPathLengthConstraint);
-        Console.WriteLine(ext.PathLengthConstraint);
-    }
+    Console.WriteLine("Creating root certificate for Experimental Issuing Authority...");
+    X509Certificate2 rootCertificate = caService.GenerateRootCertificate(CaSubjectName, RootCAkeySizeInBits);
+    Console.WriteLine("Finished creating the root certificate.");
 
-    if (extension.Oid.FriendlyName == "Subject Key Identifier")
-    {
-        X509SubjectKeyIdentifierExtension ext = (X509SubjectKeyIdentifierExtension)extension;
-        Console.WriteLine(ext.SubjectKeyIdentifier);
-    }
+    Console.WriteLine("Creating leaf certificate for WebApplication-X...");
+    X509Certificate2 WebApplicationXleafCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate");
+    Console.WriteLine("Finished creating the leaf certificate for WebApplication-X.");
 
-    if (extension.Oid.FriendlyName == "Authority Key Identifier")
-    {
-        Console.WriteLine(extension.Format(true));
-    }
+    Console.WriteLine("Export root certificate as experimental-issuing-authority.crt - public key only.");
+    caService.ExportCertificateAuthorityPublic(rootCertificate, DestinationFolder, "experimental-issuing-authority");
 
+    Console.WriteLine("Export leaf certificate as web-application-x.pfx");
+    caService.ExportLeafCertificatePrivate(WebApplicationXleafCertificate, passphrase, DestinationFolder, "web-application-x");
 
-    if (extension.Oid.FriendlyName == "Enhanced Key Usage")
-    {
-        X509EnhancedKeyUsageExtension ext = (X509EnhancedKeyUsageExtension)extension;
-        OidCollection oids = ext.EnhancedKeyUsages;
-        foreach (Oid oid in oids)
-        {
-            Console.WriteLine(oid.FriendlyName + "(" + oid.Value + ")");
-        }
-    }
+    Console.WriteLine("Install root certificate experimental-issuing-authority.crt to trust store.");
+    caService.InstallCertificateToTrustStore(rootCertificate);
+}
 
-    Console.WriteLine("---------------------------------------------");
-
-
+ICertificateAuthorityService ResolveCaService(IServiceProvider services)
+{
+    var serviceScope = services.CreateScope();
+    IServiceProvider provider = serviceScope.ServiceProvider;
+    var caService = provider.GetRequiredService<ICertificateAuthorityService>();
+    return caService;
 }
