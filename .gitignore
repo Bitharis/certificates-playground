@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Webappwithcertificate/DesignTimeBuild
+/TestDriver/obj/Debug/net6.0
+/.vs/Webappwithcertificate/v17
+/CertificateService/bin/Debug
+/CertificateService/obj/Debug
+/TestDriver/bin/Debug/net6.0
+/TestDriver/obj
