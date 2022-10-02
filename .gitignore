@@ -1,14 +1,31 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-/.vs/Webappwithcertificate/DesignTimeBuild
-/TestDriver/obj/Debug/net6.0
-/.vs/Webappwithcertificate/v17
-/CertificateService/bin/Debug
-/CertificateService/obj/Debug
-/TestDriver/bin/Debug/net6.0
-/TestDriver/obj
-/WebApplication-X/bin/Debug/net6.0
-/WebApplication-X/obj/Debug/net6.0
-/WebApplication-X/obj
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
+
+# Mono auto generated files
+mono_crash.*
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
