@@ -15,7 +15,7 @@ namespace CertificateService.Private
     {
         private const bool IsCertificateAuthority = true;
 
-        public X509Certificate2 GenerateRootCertificate(string subjectName, int keySizeInBits)
+        public X509Certificate2 GenerateCertificateAuthority(string subjectName, int keySizeInBits)
         {
             using (RSA parent = RSA.Create(keySizeInBits))
             {
@@ -85,33 +85,33 @@ namespace CertificateService.Private
             store.Close();
         }
 
-        public void ExportCertificateAuthorityPublic(X509Certificate2 certificate, string destinationFolder, string filename)
+        public void ExportCertificateAuthority(X509Certificate2 certificate, string destinationFolder, string filename)
         {
-            var certificateBytes = this.ExportCertificatePublicKeyOnly(certificate);
+            var certificateBytes = this.ExportCertificateAsBytes(certificate);
             this.ExportCertificateAsCrt(certificateBytes, destinationFolder, filename, null);
         }
 
-        public void ExportCertificateAuthorityPrivate(X509Certificate2 certificate, string passphrase, string destinationFolder, string filename)
+        public void ExportCertificateAuthorityKey(X509Certificate2 certificate, string passphrase, string destinationFolder, string filename)
         {
-            var certificateBytes = this.ExportCertificate(certificate, passphrase);
+            var certificateBytes = this.ExportCertificateKeyAsBytes(certificate, passphrase);
             this.ExportCertificateAsCrt(certificateBytes, destinationFolder, filename, passphrase);
         }
 
-        public void ExportLeafCertificatePublic(X509Certificate2 certificate, string destinationFolder, string filename)
+        public void ExportLeafCertificate(X509Certificate2 certificate, string destinationFolder, string filename)
         {
-            var certificateBytes = this.ExportCertificatePublicKeyOnly(certificate);
+            var certificateBytes = this.ExportCertificateAsBytes(certificate);
             this.ExportCertificateAsPfx(certificateBytes, destinationFolder, filename, null);
         }
 
-        public void ExportLeafCertificatePrivate(X509Certificate2 certificate, string passphrase, string destinationFolder, string filename)
+        public void ExportLeafCertificateKey(X509Certificate2 certificate, string passphrase, string destinationFolder, string filename)
         {
-            var certificateBytes = this.ExportCertificate(certificate, passphrase);
+            var certificateBytes = this.ExportCertificateKeyAsBytes(certificate, passphrase);
             this.ExportCertificateAsPfx(certificateBytes, destinationFolder, filename, passphrase);
         }
 
-        public void ExportCertificateAsPem(byte[] certificate, string passphrase, string destinationFolder, string filename)
+        public void ExportCertificatePem(byte[] certificate, string destinationFolder, string filename)
         {
-            using (var cert = new X509Certificate2(certificate, passphrase))
+            using (var cert = new X509Certificate2(certificate))
             {
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine("-----BEGIN CERTIFICATE-----");
@@ -134,6 +134,43 @@ namespace CertificateService.Private
                 }
             }
         }
+
+        public void ExportCertificateKeyPem(byte[] certificate, string passphrase, string destinationFolder, string filename)
+        {
+            using (var cert = new X509Certificate2(certificate, passphrase))
+            {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine("-----BEGIN CERTIFICATE-----");
+                builder.AppendLine(Convert.ToBase64String(cert.RawData, Base64FormattingOptions.InsertLineBreaks));
+                builder.AppendLine("-----END CERTIFICATE-----");
+
+                if (Directory.Exists(destinationFolder) == false)
+                {
+                    Directory.CreateDirectory(destinationFolder);
+                }
+
+                var fullPath = Path.Combine(destinationFolder, filename + ".key.pem");
+
+                if (File.Exists(fullPath) == false)
+                {
+                    using (var streamWriter = File.CreateText(fullPath))
+                    {
+                        streamWriter.Write(builder.ToString());
+                    }
+                }
+            }
+        }
+
+        public byte[] ExportCertificateKeyAsBytes(X509Certificate2 certificate, string passphrase)
+        {
+            return certificate.Export(X509ContentType.Pkcs12, passphrase);
+        }
+
+        public byte[] ExportCertificateAsBytes(X509Certificate2 certificate)
+        {
+            return certificate.Export(X509ContentType.Pkcs12);
+        }
+
 
         private void ExportCertificateInternal(X509ContentType type, byte[] certificate, string passphrase, string destinationFolder, string filename, bool includePrivateKey)
         {
@@ -167,16 +204,6 @@ namespace CertificateService.Private
         {
             bool includePrivateKey = string.IsNullOrEmpty(passphrase) == false;
             ExportCertificateInternal(X509ContentType.Cert, certificate, passphrase, destinationFolder, filename + ".crt", includePrivateKey: includePrivateKey);
-        }
-
-        private byte[] ExportCertificate(X509Certificate2 certificate, string passphrase)
-        {
-            return certificate.Export(X509ContentType.Pkcs12, passphrase);
-        }
-
-        private byte[] ExportCertificatePublicKeyOnly(X509Certificate2 certificate)
-        {
-            return certificate.Export(X509ContentType.Pkcs12);
         }
 
         /// <summary>
