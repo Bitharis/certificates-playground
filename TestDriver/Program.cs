@@ -41,17 +41,34 @@ void Run(IServiceProvider services)
     Console.WriteLine("Install root certificate experimental-issuing-authority.crt to trust store.");
     caService.InstallCertificateToTrustStore(rootCertificate);
 
+
+    Console.WriteLine("Export ca-certificate.pem and ca-certificate.key.pem");
+
     var root = caService.ExportCertificateKeyAsBytes(rootCertificate, passphrase);
     caService.ExportCertificateKeyPem(root, passphrase, DestinationFolder, "ca-certificate");
 
     root = caService.ExportCertificateAsBytes(rootCertificate);
     caService.ExportCertificatePem(root, DestinationFolder, "ca-certificate");
 
-    var cert = caService.ExportCertificateKeyAsBytes(webApplicationXleafCertificate, passphrase);
+    Console.WriteLine("Create and export server-certificate.pem and server-certificate.key.pem");
+    var serverCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate");
+    var cert = caService.ExportCertificateKeyAsBytes(serverCertificate, passphrase);
     caService.ExportCertificateKeyPem(cert, passphrase, DestinationFolder, "server-certificate");
-
-    cert = caService.ExportCertificateAsBytes(webApplicationXleafCertificate);
+    cert = caService.ExportCertificateAsBytes(serverCertificate);
     caService.ExportCertificatePem(root, DestinationFolder, "server-certificate");
+
+    Console.WriteLine("Create and export client-certificate.pem and client-certificate.key.pem");
+    var clientCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate");
+    var cert2 = caService.ExportCertificateKeyAsBytes(clientCertificate, passphrase);
+    caService.ExportCertificateKeyPem(cert2, passphrase, DestinationFolder, "client-certificate");
+    cert = caService.ExportCertificateAsBytes(clientCertificate);
+    caService.ExportCertificatePem(root, DestinationFolder, "client-certificate");
+
+
+
+
+
+
 }
 
 ICertificateAuthorityService ResolveCaService(IServiceProvider services)
