@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Panos\\source\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj": {}
+    "C:\\Users\\panos\\Documents\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Panos\\source\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj": {
+    "C:\\Users\\panos\\Documents\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Panos\\source\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj",
+        "projectUniqueName": "C:\\Users\\panos\\Documents\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj",
         "projectName": "WebApplication-X",
-        "projectPath": "C:\\Users\\Panos\\source\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj",
-        "packagesPath": "C:\\Users\\Panos\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Panos\\source\\repos\\certificates-playground\\WebApplication-X\\obj\\",
+        "projectPath": "C:\\Users\\panos\\Documents\\repos\\certificates-playground\\WebApplication-X\\WebApplication-X.csproj",
+        "packagesPath": "C:\\Users\\panos\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\panos\\Documents\\repos\\certificates-playground\\WebApplication-X\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Panos\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\panos\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
