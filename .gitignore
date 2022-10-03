@@ -26,9 +26,11 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
-[Oo]bj\
-[Dd]ebug\
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 /WebApplication-X/Properties/launchSettings.json
+/WebApplication-X/bin
+/WebApplication-X/debug
+/WebApplication-X/Bin
+/WebApplication-X/Debug
