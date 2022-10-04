@@ -22,6 +22,7 @@ void Run(IServiceProvider services)
     int RootCAkeySizeInBits = 4096;
     int CertKeyBitSize = 2048;
     string CaSubjectName = @"CN=Experimental Issuing Authority";
+    string serverCertificateSubjectName = "CN=WebApplication-X-Leaf-Certificate";
     string DestinationFolder = @"C:\Certs\";
 
     Console.WriteLine("Creating root certificate for Experimental Issuing Authority...");
@@ -29,7 +30,7 @@ void Run(IServiceProvider services)
     Console.WriteLine("Finished creating the root certificate.");
 
     Console.WriteLine("Creating leaf certificate for WebApplication-X...");
-    X509Certificate2 webApplicationXleafCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate");
+    X509Certificate2 webApplicationXleafCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, serverCertificateSubjectName, ExtendedUsage.ServerAuth);
     Console.WriteLine("Finished creating the leaf certificate for WebApplication-X.");
 
     Console.WriteLine("Export root certificate as experimental-issuing-authority.crt - public key only.");
@@ -42,27 +43,27 @@ void Run(IServiceProvider services)
     caService.InstallCertificateToTrustStore(rootCertificate);
 
 
-    Console.WriteLine("Export ca-certificate.pem and ca-certificate.key.pem");
+    Console.WriteLine("Export ca.certificate.pem and ca.key.pem");
 
     var root = caService.ExportCertificateKeyAsBytes(rootCertificate, passphrase);
-    caService.ExportCertificateKeyPem(root, passphrase, DestinationFolder, "ca-certificate");
+    caService.ExportCertificateKeyPem(root, passphrase, DestinationFolder, "ca");
 
     root = caService.ExportCertificateAsBytes(rootCertificate);
-    caService.ExportCertificatePem(root, DestinationFolder, "ca-certificate");
+    caService.ExportCertificatePem(root, DestinationFolder, "ca.certificate");
 
-    Console.WriteLine("Create and export server-certificate.pem and server-certificate.key.pem");
-    var serverCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate");
+    Console.WriteLine("Create and export server.certificate.pem and server.key.pem");
+    var serverCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate", ExtendedUsage.ServerAuth);
     var cert = caService.ExportCertificateKeyAsBytes(serverCertificate, passphrase);
-    caService.ExportCertificateKeyPem(cert, passphrase, DestinationFolder, "server-certificate");
+    caService.ExportCertificateKeyPem(cert, passphrase, DestinationFolder, "server");
     cert = caService.ExportCertificateAsBytes(serverCertificate);
-    caService.ExportCertificatePem(root, DestinationFolder, "server-certificate");
+    caService.ExportCertificatePem(root, DestinationFolder, "server.certificate");
 
-    Console.WriteLine("Create and export client-certificate.pem and client-certificate.key.pem");
-    var clientCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate");
+    Console.WriteLine("Create and export client.certificate.pem and client.key.pem");
+    var clientCertificate = caService.GenerateLeafCertificate(rootCertificate, CertKeyBitSize, "CN=WebApplication-X-Leaf-Certificate", ExtendedUsage.ClientAuth);
     var cert2 = caService.ExportCertificateKeyAsBytes(clientCertificate, passphrase);
-    caService.ExportCertificateKeyPem(cert2, passphrase, DestinationFolder, "client-certificate");
+    caService.ExportCertificateKeyPem(cert2, passphrase, DestinationFolder, "client");
     cert = caService.ExportCertificateAsBytes(clientCertificate);
-    caService.ExportCertificatePem(root, DestinationFolder, "client-certificate");
+    caService.ExportCertificatePem(root, DestinationFolder, "client.certificate");
 
 
 

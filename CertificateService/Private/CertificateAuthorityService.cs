@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -39,7 +41,7 @@ namespace CertificateService.Private
             }
         }
 
-        public X509Certificate2 GenerateLeafCertificate(X509Certificate2 certificateAuthorityRoot, int keyBitSize, string subjectName)
+        public X509Certificate2 GenerateLeafCertificate(X509Certificate2 certificateAuthorityRoot, int keyBitSize, string subjectName, ExtendedUsage extendedUsage)
         {
             using (RSA rsa = RSA.Create(keyBitSize))
             {
@@ -47,9 +49,9 @@ namespace CertificateService.Private
 
                 req.CertificateExtensions.Add(new X509BasicConstraintsExtension(false, false, 0, false));
 
-                req.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DataEncipherment | X509KeyUsageFlags.KeyEncipherment | X509KeyUsageFlags.DigitalSignature, false));
+                req.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DataEncipherment | X509KeyUsageFlags.KeyEncipherment | X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation, false));
 
-                req.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.1") }, false));
+                req.CertificateExtensions.Add(SetExtendedKeyUsage(extendedUsage));
 
                 req.CertificateExtensions.Add(new X509SubjectKeyIdentifierExtension(req.PublicKey, false));
 
@@ -59,21 +61,36 @@ namespace CertificateService.Private
                 sanBuilder.AddIpAddress(IPAddress.IPv6Loopback);
                 sanBuilder.AddDnsName("localhost");
                 sanBuilder.AddDnsName(Environment.MachineName);
+                AddExternalIpAddress(sanBuilder);
 
                 req.CertificateExtensions.Add(sanBuilder.Build());
 
-                var guid = Guid.NewGuid();
+                byte[] serialNumber = GenerateSerialNumber();
 
                 X509Certificate2 cert = req.Create(
                     certificateAuthorityRoot,
                     DateTimeOffset.UtcNow.AddDays(-1),
                     DateTimeOffset.UtcNow.AddDays(90),
-                    guid.ToByteArray());
+                    serialNumber);
 
                 // the req.Create() above creates a certificate that doesnt include the private key. The following line fixes that.
                 cert = RSACertificateExtensions.CopyWithPrivateKey(cert, rsa);
 
                 return cert;
+            }
+        }
+
+        private X509EnhancedKeyUsageExtension SetExtendedKeyUsage(ExtendedUsage extendedUsage)
+        {
+            switch (extendedUsage)
+            {
+                case ExtendedUsage.ClientAuth:
+                    return new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.2") }, false);
+                case ExtendedUsage.ServerAuth:
+                    return new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.1") }, false);
+                default:
+                    throw new ArgumentOutOfRangeException("Unexpecte ExtendedUsage value"); 
+
             }
         }
 
@@ -213,6 +230,35 @@ namespace CertificateService.Private
         {
             X509Certificate2 certificate = new X509Certificate2(certificateBytes, passphrase, X509KeyStorageFlags.Exportable);
             return certificate;
+        }
+
+        private byte[] GenerateSerialNumber()
+        {
+            byte[] serialNumber = new Byte[20];
+
+            //RNGCryptoServiceProvider is an implementation of a random number generator.
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            rng.GetBytes(serialNumber); // The array is now filled with cryptographically strong random bytes.
+            return serialNumber;
+        }
+
+        private static void AddExternalIpAddress(SubjectAlternativeNameBuilder sanBuilder)
+        {
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                {
+                    Console.WriteLine(ni.Name);
+                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            Console.WriteLine("Adding IP: " + ip.Address.ToString() + " to SAN.");
+                            sanBuilder.AddIpAddress(ip.Address);
+                        }
+                    }
+                }
+            }
         }
     }
 }

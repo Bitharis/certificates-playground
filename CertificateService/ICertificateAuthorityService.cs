@@ -4,11 +4,12 @@ namespace CertificateService
 {
     public interface ICertificateAuthorityService
     {
+        /// <summary>
         /// Generates a CA root with the properties defined here 
         /// https://www.golinuxcloud.com/add-x509-extensions-to-certificate-openssl/
         /// </summary>
         /// <param name="subjectName">subject name.</param>
-        /// /// <param name="keySizeInBits">the keys size</param>
+        /// <param name="keySizeInBits">the keys size</param>
         /// <returns>The CA Root bytes.</returns>
         X509Certificate2 GenerateCertificateAuthority(string subjectName, int keySizeInBits);
 
@@ -18,7 +19,8 @@ namespace CertificateService
         /// <param name="certificateAuthorityRoot">The root certificate to be used for signing it.</param>
         /// <param name="keyBitSize">the keys size</param>
         /// <param name="subjectName">subject name.</param>
-        X509Certificate2 GenerateLeafCertificate(X509Certificate2 certificateAuthorityRoot, int keyBitSize, string subjectName);
+        /// <param name="extendedUsage" The usage intention of the ceriticate (i.e client certificate or server certificate)</param>
+        X509Certificate2 GenerateLeafCertificate(X509Certificate2 certificateAuthorityRoot, int keyBitSize, string subjectName, ExtendedUsage extendedUsage);
 
         /// <summary>
         /// Installs a root certificate to machine's Trusted Certificates store.
