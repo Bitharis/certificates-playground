@@ -61,6 +61,7 @@ namespace CertificateService.Private
                 sanBuilder.AddIpAddress(IPAddress.IPv6Loopback);
                 sanBuilder.AddDnsName("localhost");
                 sanBuilder.AddDnsName(Environment.MachineName);
+                sanBuilder.AddDnsName(Environment.MachineName+".local");
                 AddExternalIpAddress(sanBuilder);
 
                 req.CertificateExtensions.Add(sanBuilder.Build());
@@ -77,20 +78,6 @@ namespace CertificateService.Private
                 cert = RSACertificateExtensions.CopyWithPrivateKey(cert, rsa);
 
                 return cert;
-            }
-        }
-
-        private X509EnhancedKeyUsageExtension SetExtendedKeyUsage(ExtendedUsage extendedUsage)
-        {
-            switch (extendedUsage)
-            {
-                case ExtendedUsage.ClientAuth:
-                    return new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.2") }, false);
-                case ExtendedUsage.ServerAuth:
-                    return new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.1") }, false);
-                default:
-                    throw new ArgumentOutOfRangeException("Unexpecte ExtendedUsage value"); 
-
             }
         }
 
@@ -258,6 +245,20 @@ namespace CertificateService.Private
                         }
                     }
                 }
+            }
+        }
+
+        private X509EnhancedKeyUsageExtension SetExtendedKeyUsage(ExtendedUsage extendedUsage)
+        {
+            switch (extendedUsage)
+            {
+                case ExtendedUsage.ClientAuth:
+                    return new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.2") }, false);
+                case ExtendedUsage.ServerAuth:
+                    return new X509EnhancedKeyUsageExtension(new OidCollection { new Oid("1.3.6.1.5.5.7.3.1") }, false);
+                default:
+                    throw new ArgumentOutOfRangeException("Unexpecte ExtendedUsage value");
+
             }
         }
     }
