@@ -64,12 +64,6 @@ void Run(IServiceProvider services)
     caService.ExportCertificateKeyPem(cert2, passphrase, DestinationFolder, "client");
     cert = caService.ExportCertificateAsBytes(clientCertificate);
     caService.ExportCertificatePem(root, DestinationFolder, "client.certificate");
-
-
-
-
-
-
 }
 
 ICertificateAuthorityService ResolveCaService(IServiceProvider services)
